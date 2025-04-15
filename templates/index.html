@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Convertidor de MP4 a MP3</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="shortcut icon" href="https://i.postimg.cc/BbqCVx8j/favicon2.png" type="image/x-icon">
+</head>
+<body>
+<div class="container">
+    <h1>Convertir Links de YouTube a MP3</h1>
+    <form action="/convert" method="POST" onsubmit="event.preventDefault(); procesarDescarga();">
+        <input type="text" name="youtube_url" id="youtube_url" placeholder="Ingresa el enlace de YouTube" required>
+        <button type="submit" id="boton-convertir">Convertir</button>
+    </form>
+    <p id="mensaje"></p> <!-- Aquí aparecerá el estado -->
+    <a id="boton-descarga" style="display: none;" download></a>
+</div>
+</body>
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</html>

@@ -1,0 +1,149 @@
+/* General */
+body {
+    font-family: 'Roboto', Arial, sans-serif;
+    background: linear-gradient(135deg, #4c8bf5, #6c63ff);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    color: #fff;
+}
+
+/* Contenedor */
+.container {
+    text-align: center;
+    background: #ffffff20; /* Fondo semitransparente */
+    padding: 30px 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.2);
+    width: 90%; /* Ancho relativo para dispositivos pequeños */
+    max-width: 500px; /* Ancho máximo */
+    margin-bottom: 100px;
+}
+
+/* Título */
+h1 {
+    font-size: 2em;
+    margin-bottom: 20px;
+}
+
+/* Formulario */
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Entrada */
+/* Estilo del input */
+input {
+    width: 100%;
+    max-width: 400px;
+    padding: 15px;
+    font-size: 1em;
+    border: 2px solid #ccc;
+    border-radius: 25px;
+    outline: none;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    background-color: #fff;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    text-indent: 10px; /* Espacio interno para el ícono o texto */
+}
+
+input:focus {
+    border-color: #6c63ff; /* Cambia el borde al enfocarse */
+    box-shadow: 0 4px 20px rgba(108, 99, 255, 0.5); /* Resplandor suave */
+}
+
+/* Placeholder estilizado */
+input::placeholder {
+    color: #999;
+    font-style: italic;
+}
+
+/* Ícono dentro del input */
+input::placeholder:before {
+    content: "🎥 ";
+}
+
+
+/* Botón */
+button {
+    background: #6c63ff;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    transition: background 0.3s ease;
+    font-style: italic;
+    margin-top: 13px;
+    font-size: 20px;
+}
+
+button:hover {
+    background: #4c8bf5;
+}
+
+/* Mensaje */
+#mensaje {
+    margin-top: 20px;
+    font-size: 1em;
+    color: #ffdbdb; /* Texto rojo claro */
+}
+
+/* Botón de descarga */
+#boton-descarga {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 10px 20px;
+    background: #28a745;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    transition: background 0.3s ease;
+}
+
+#boton-descarga:hover {
+    background: #218838;
+}
+
+/* Media Queries para dispositivos pequeños */
+@media screen and (max-width: 768px) {
+    h1 {
+        font-size: 1.8em;
+    }
+
+    input {
+        width: 90%; /* Menor ancho en pantallas pequeñas */
+    }
+
+    button {
+        width: 90%; /* Botón más ancho en móviles */
+    }
+
+    #boton-descarga {
+        width: 90%; /* Botón de descarga más amplio */
+    }
+}
+
+@media screen and (max-width: 480px) {
+    h1 {
+        font-size: 1.5em; /* Título más compacto */
+    }
+
+    input {
+        font-size: 1em; /* Texto más legible */
+    }
+
+    button {
+        font-size: 1em; /* Botón adaptable */
+    }
+
+    #mensaje {
+        font-size: 0.9em; /* Texto del mensaje más pequeño */
+    }
+}
