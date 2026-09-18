@@ -1,0 +1,14 @@
+# Entornos y cachés
+venv/
+__pycache__/
+*.py[cod]
+
+# Descargas y logs generados en tiempo de ejecución
+downloads/
+downloader.log
+
+# FFmpeg estático descargado automáticamente
+ffmpeg/
+
+# Entorno operativo
+.env

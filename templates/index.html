@@ -3,20 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Convertidor de MP4 a MP3</title>
+    <meta name="description" content="Convierte enlaces de YouTube a MP3 gratis, en tu propio equipo y sin instalar nada.">
+    <title>TubeToMP3 — Convertir YouTube a MP3</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-    <link rel="shortcut icon" href="https://i.postimg.cc/BbqCVx8j/favicon2.png" type="image/x-icon">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎵</text></svg>">
 </head>
 <body>
-<div class="container">
-    <h1>Convertir Links de YouTube a MP3</h1>
-    <form action="/convert" method="POST" onsubmit="event.preventDefault(); procesarDescarga();">
-        <input type="text" name="youtube_url" id="youtube_url" placeholder="Ingresa el enlace de YouTube" required>
-        <button type="submit" id="boton-convertir">Convertir</button>
+<main class="card">
+    <header class="cabecera">
+        <div class="logo">🎵</div>
+        <h1>TubeToMP3</h1>
+        <p class="subtitulo">Convierte enlaces de YouTube a MP3, gratis y en tu propio equipo</p>
+    </header>
+
+    <form id="formulario" novalidate>
+        <label class="etiqueta" for="youtube_url">Enlace de YouTube</label>
+        <div class="campo">
+            <span class="campo-icono" aria-hidden="true">🔗</span>
+            <input type="url" id="youtube_url" name="youtube_url"
+                   placeholder="Pega aquí el enlace de YouTube…"
+                   autocomplete="off" spellcheck="false" required>
+        </div>
+        <button type="submit" id="boton-convertir">
+            <span class="boton-texto">Convertir a MP3</span>
+        </button>
     </form>
-    <p id="mensaje"></p> <!-- Aquí aparecerá el estado -->
-    <a id="boton-descarga" style="display: none;" download></a>
-</div>
-</body>
+
+    <section id="area-progreso" class="oculto" aria-live="polite">
+        <div class="progreso-cabecera">
+            <span id="mensaje">Preparando…</span>
+            <span id="porcentaje">0%</span>
+        </div>
+        <div class="barra" role="progressbar" aria-valuemin="0" aria-valuemax="100" id="barra-contenedor">
+            <div class="barra-llenado" id="barra-llenado"></div>
+        </div>
+        <p id="detalle" class="detalle"></p>
+    </section>
+
+    <section id="area-resultado" class="oculto" aria-live="polite">
+        <p class="resultado-exito">✅ ¡Audio listo!</p>
+        <button id="boton-descarga" class="boton-descarga">Descargar audio</button>
+        <p id="detalle-resultado" class="detalle"></p>
+    </section>
+
+    <p id="mensaje-error" class="mensaje-error oculto" role="alert"></p>
+</main>
+
 <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
 </html>
