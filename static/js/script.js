@@ -13,6 +13,27 @@ const detalleResultado = document.getElementById("detalle-resultado");
 
 let trabajoFinalizado = false;
 
+/* ---------- Tema claro/oscuro ---------- */
+const temaToggle = document.getElementById("tema-toggle");
+
+function aplicarTema(tema) {
+    document.documentElement.setAttribute("data-tema", tema);
+    try {
+        localStorage.setItem("tubetomp3-tema", tema);
+    } catch (err) { /* almacenamiento no disponible */ }
+}
+
+function temaActual() {
+    return document.documentElement.getAttribute("data-tema") === "light" ? "light" : "dark";
+}
+
+if (temaToggle) {
+    temaToggle.addEventListener("click", () => {
+        aplicarTema(temaActual() === "light" ? "dark" : "light");
+    });
+}
+aplicarTema(temaActual());
+
 formulario.addEventListener("submit", (evento) => {
     evento.preventDefault();
     iniciarConversion();
@@ -87,7 +108,7 @@ async function iniciarConversion() {
     fuente.addEventListener("progreso", (evento) => {
         const datos = JSON.parse(evento.data);
 
-        if (datos.tipo === "ffmpeg" || datos.tipo === "video") {
+        if ("porcentaje" in datos) {
             setBarra(datos.porcentaje);
         }
         mensaje.textContent = datos.mensaje || "Procesando…";

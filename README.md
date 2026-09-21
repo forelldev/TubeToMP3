@@ -86,3 +86,13 @@ TubeToMP3/
 - La app escucha solo en `127.0.0.1` (no expone nada a tu red local) y usa el puerto 5000 (con reseva automática si estuviera ocupado).
 - Los audios descargados quedan en la carpeta `downloads/`; puedes borrarlos manualmente cuando quieras.
 - Registro de actividad en `downloader.log`.
+
+## Solución de problemas
+
+### Error `HTTP 403 Forbidden` al convertir
+
+YouTube bloquea temporalmente el cliente o la IP. Soluciones en orden:
+
+1. **Actualiza yt-dlp** (es lo más frecuente): `python -m pip install -U yt-dlp`
+2. Prueba de nuevo — la app ya reintenta con varios clientes de YouTube automáticamente.
+3. Si persiste, espera unos minutos (YouTube limita por IP) o prueba desde otra red/VPN.

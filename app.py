@@ -121,13 +121,13 @@ def _limpiar_job(job_id: str) -> None:
 def _hook_video(job_id: str, estado: dict) -> None:
     """Hook de yt-dlp para propagar el progreso de la descarga del audio."""
     if estado.get("status") == "finished":
-        _emitir(job_id, "progreso", {"tipo": "mp3", "mensaje": "Convirtiendo a MP3…"})
+        _emitir(job_id, "progreso", {"tipo": "mp3", "mensaje": "Convertiendo a MP3…", "porcentaje": 100})
         return
     total = estado.get("total_bytes") or estado.get("total_bytes_estimate") or 0
     descargado = estado.get("downloaded_bytes") or 0
     if total:
         p = min(100, int(descargado * 100 / total))
-        _emitir(job_id, "progreso", {"tipo": "video", "porcentaje": p, "mensaje": f"Descargando audio… {p}%"})
+        _emitir(job_id, "progreso", {"tipo": "video", "porcentaje": p, "mensaje": f"Descargando desde YouTube… {p}%"})
 
 
 def _trabajo_convertir(youtube_url: str, job_id: str) -> None:
@@ -136,7 +136,7 @@ def _trabajo_convertir(youtube_url: str, job_id: str) -> None:
 
         # Garantiza MP3: si no hay ffmpeg, se descarga solo mostrando el %
         def progreso_ffmpeg(p: int) -> None:
-            _emitir(job_id, "progreso", {"tipo": "ffmpeg", "porcentaje": p, "mensaje": f"Descargando FFmpeg… {p}%"})
+            _emitir(job_id, "progreso", {"tipo": "ffmpeg", "porcentaje": p, "mensaje": f"Descargando FFmpeg (solo la primera vez)… {p}%"})
 
         ffmpeg = asegurar_ffmpeg(progreso=progreso_ffmpeg)
         es_mp3 = ffmpeg is not None
@@ -145,6 +145,8 @@ def _trabajo_convertir(youtube_url: str, job_id: str) -> None:
             "format": "bestaudio/best",
             "noplaylist": True,
             "outtmpl": str(DOWNLOAD_DIR / "%(title)s.%(ext)s"),
+            # Mitiga HTTP 403: reintenta la extracción con varios clientes de YouTube
+            "extractor_args": {"youtube": {"player_client": ["default", "android", "tv", "web"]}},
         }
         if es_mp3:
             ydl_opts["ffmpeg_location"] = ffmpeg
@@ -154,7 +156,7 @@ def _trabajo_convertir(youtube_url: str, job_id: str) -> None:
                 "preferredquality": "192",
             }]
 
-        _emitir(job_id, "progreso", {"tipo": "video", "porcentaje": 0, "mensaje": "Iniciando descarga del audio…"})
+        _emitir(job_id, "progreso", {"tipo": "video", "porcentaje": 0, "mensaje": "Preparando tu conversión a MP3…"})
 
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             ydl.add_progress_hook(lambda d: _hook_video(job_id, d))
