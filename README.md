@@ -1,4 +1,4 @@
-# TubeToMP3 🎶
+# TubeToMP3
 
 Convierte enlaces de YouTube a **MP3** de forma local y gratuita. Aplicación web ligera basada en Flask y yt-dlp que se ejecuta en tu propia máquina.
 
@@ -56,6 +56,24 @@ Si prefieres tenerlo tú mismo, se usará el del sistema:
 **Linux:** `sudo apt install ffmpeg`
 
 **macOS:** `brew install ffmpeg`
+
+## Crear un .exe (Windows)
+
+Para repartir la app como un único ejecutable portátil:
+
+**Opción A — Compilar en tu máquina:** ejecuta `build.bat` (instala PyInstaller y genera `dist\TubeToMP3.exe`). Necesitas Python 3.10+ en Windows (PyInstaller no compila "en cruz", así que hay que compilar en Windows).
+
+**Opción B — Compilar en GitHub (recomendada):** sube el proyecto a GitHub (ya está el workflow). Ve a **Actions → Build Windows .exe → Run workflow**, o crea una *release* con una etiqueta `v*` y el `.exe` se adjuntará automáticamente.
+
+Detalles de cada opción:
+
+| Tamaño | Qué incluye | Comportamiento |
+|---|---|---|
+| ~60–90 MB | Flask + yt-dlp + interfaz | El `.exe` descarga FFmpeg automáticamente la **primera vez** que se convierte y lo guarda junto a él. Sin perder calidad: MP3 a 192 kbps. |
+
+El `.exe` es de un solo archivo: los recursos de solo lectura (interfaz) se leen del interior, y todo lo que se escribe (`downloads/`, `ffmpeg/`, `downloader.log`) se crea en la **misma carpeta del ejecutable**.
+
+> **Aviso:** Windows Defender puede mostrar "Editor desconocido" al arrancarlo (el `.exe` no está firmado). Los usuarios deben pulsar *Más información → Ejecutar de todos modos*.
 
 ## Estructura del proyecto
 

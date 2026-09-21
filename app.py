@@ -13,6 +13,7 @@ import logging
 import os
 import queue
 import socket
+import sys
 import threading
 import uuid
 import webbrowser
@@ -23,10 +24,25 @@ import yt_dlp
 from flask import Flask, Response, jsonify, render_template, request, send_file
 from werkzeug.utils import safe_join
 
-from ffmpeg_util import asegurar_ffmpeg
+from ffmpeg_util import asegurar_ffmpeg, configurar_directorio
 
 BASE_DIR = Path(__file__).resolve().parent
-DOWNLOAD_DIR = BASE_DIR / "downloads"
+
+# --- Modo compilado (PyInstaller) ----------------------------------------
+# En un .exe de un solo archivo el código se descomprime a _MEIPASS (temporal,
+# se borra al cerrar). Los recursos de solo lectura (templates/static) se leen
+# de ahí, mientras que todo lo que se escribe (descargas, ffmpeg, registro)
+# debe ir AL LADO del ejecutable para no perderse.
+FROZEN = getattr(sys, "frozen", False)
+if FROZEN:
+    RES_BASE = Path(getattr(sys, "_MEIPASS"))
+    DATA_BASE = Path(sys.executable).resolve().parent
+else:
+    RES_BASE = BASE_DIR
+    DATA_BASE = BASE_DIR
+
+DOWNLOAD_DIR = DATA_BASE / "downloads"
+configurar_directorio(DATA_BASE)
 
 # Hosts aceptados (comparación exacta para evitar suplantaciones tipo youtube.com.evil.com)
 ALLOWED_HOSTS = {
@@ -39,7 +55,11 @@ ALLOWED_HOSTS = {
 
 log = logging.getLogger("tubetomp3")
 
-app = Flask(__name__)
+app = Flask(
+    __name__,
+    template_folder=str(RES_BASE / "templates"),
+    static_folder=str(RES_BASE / "static"),
+)
 
 # Trabajos de conversión en curso: job_id -> {"eventos": queue.Queue}
 JOBS: dict[str, dict] = {}
@@ -52,7 +72,7 @@ def configurar_logging() -> None:
         level=logging.INFO,
         format="%(asctime)s %(levelname)s %(name)s: %(message)s",
         handlers=[
-            logging.FileHandler(BASE_DIR / "downloader.log", encoding="utf-8"),
+            logging.FileHandler(DATA_BASE / "downloader.log", encoding="utf-8"),
             logging.StreamHandler(),
         ],
     )

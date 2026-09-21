@@ -23,6 +23,17 @@ FFMPEG_BIN = FFMPEG_DIR / NOMBRE_BINARIO
 
 _DOWNLOAD_LOCK = threading.Lock()
 
+
+def configurar_directorio(base: Path) -> None:
+    """Reubica la carpeta de FFmpeg junto al ejecutable cuando está compilado.
+
+    En modo fuente usa la carpeta del proyecto; en modo PyInstaller, `__file__`
+    apunta a _MEIPASS (temporal), así que se emplaza al lado del .exe.
+    """
+    global FFMPEG_DIR, FFMPEG_BIN
+    FFMPEG_DIR = base / "ffmpeg"
+    FFMPEG_BIN = FFMPEG_DIR / NOMBRE_BINARIO
+
 # Builds estáticos (sin dependencias, mínimo tamaño). URLs "latest" estables.
 _URLS = {
     "linux:x86_64": (
