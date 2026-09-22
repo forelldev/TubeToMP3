@@ -39,7 +39,16 @@ Con el entorno virtual activado:
 python app.py
 ```
 
-Se abrirá el navegador automáticamente en `http://127.0.0.1:5000` (5001, 5002… si el 5000 está ocupado). Pega el enlace de YouTube, presiona **Convertir** y descarga el audio.
+Se abrirá **una ventana nativa del sistema** (sin navegador) con la app en `http://127.0.0.1:5000` (5001, 5002… si el 5000 está ocupado). Pega el enlace de YouTube, presiona **Convertir** y descarga el audio.
+
+## Ventana de escritorio (sin navegador)
+
+La app usa **pywebview** para abrirse en una ventana real del sistema operativo que pinta la interfaz tal cual (GTK/WebKit en Linux, WebView2 en Windows), conservando el progreso en vivo (SSE).
+
+- **Windows:** usa el runtime WebView2, ya incluido en Windows 10/11 → funciona sin instalar nada.
+- **Linux:** requiere las librerías del sistema `libwebkit2gtk-4.1` y PyGObject (`sudo apt install python3-gi gir1.2-webkit2-4.1 libwebkit2gtk-4.1-0` en Debian/Ubuntu).
+- **Plan B automático:** si el webview no está disponible (librerías ausentes, PC cabeza, etc.), la app **cae automáticamente al navegador** en vez de fallar.
+- Para forzar el navegador: ejecutar con `TUBETOMP3_NAVEGADOR=1`.
 
 ## Alternativa sin comandos (Windows)
 
@@ -61,9 +70,9 @@ Si prefieres tenerlo tú mismo, se usará el del sistema:
 
 Para repartir la app como un único ejecutable portátil:
 
-**Opción A — Compilar en tu máquina:** ejecuta `build.bat` (instala PyInstaller y genera `dist\TubeToMP3.exe`). Necesitas Python 3.10+ en Windows (PyInstaller no compila "en cruz", así que hay que compilar en Windows).
+**Opción A — Compilar en tu máquina:** ejecuta `build.bat` (instala PyInstaller y genera `ejecutables\Windows\TubeToMP3.exe`). Necesitas Python 3.10+ en Windows (PyInstaller no compila "en cruz", así que hay que compilar en Windows).
 
-**Opción B — Compilar en GitHub (recomendada):** sube el proyecto a GitHub (ya está el workflow). Ve a **Actions → Build Windows .exe → Run workflow**, o crea una *release* con una etiqueta `v*` y el `.exe` se adjuntará automáticamente.
+**Opción B — Compilar en GitHub (recomendada):** sube el proyecto a GitHub (ya está el workflow). Ve a **Actions → Build Windows .exe → Run workflow**, o crea una *release* con una etiqueta `v*` y el `.exe` se adjuntará automáticamente desde `ejecutables/Windows/`.
 
 Detalles de cada opción:
 
@@ -75,20 +84,40 @@ El `.exe` es de un solo archivo: los recursos de solo lectura (interfaz) se leen
 
 > **Aviso:** Windows Defender puede mostrar "Editor desconocido" al arrancarlo (el `.exe` no está firmado). Los usuarios deben pulsar *Más información → Ejecutar de todos modos*.
 
+## AppImage (Linux)
+
+Ejecuta `build_appimage.sh` (instala PyInstaller y `appimagetool`, y genera `ejecutables/Linux/TubeToMP3-x86_64.AppImage`). Funciona sin instalar nada, en cualquier distro moderna con FUSE.
+
+| Tamaño | Contenido | Comportamiento |
+|---|---|---|
+| ~70 MB | Flask + yt-dlp + pywebview + interfaz | Abre en una **ventana nativa**. FFmpeg se autodescarga la primera vez (~40 MB). Los datos (`downloads/`, `ffmpeg/`, `downloader.log`) se guardan en `~/.local/share/tubetomp3/` (el AppImage está montado en solo lectura). |
+
+> **Librerías del sistema:** el AppImage necesita WebKitGTK instalado en el equipo del usuario (`libwebkit2gtk-4.1-0`, `python3-gi` y `gir1.2-webkit2-4.1` en Debian/Ubuntu). Sin ellos, la app usa el navegador (Plan B).
+
+> **Compatibilidad:** el AppImage usa la `glibc` de la distro donde compiles. Para repartirlo a otros, compílalo en la **más antigua** que quieras soportar (Debian 11 / Ubuntu 20.04) o con un contenedor Docker de esa versión.
+
 ## Estructura del proyecto
 
 ```
 TubeToMP3/
-├── app.py               # Aplicación Flask (backend)
-├── ffmpeg_util.py       # Descarga y gestión automática de FFmpeg
-├── requirements.txt     # Dependencias de Python
-├── static/
-│   ├── css/styles.css   # Estilos
-│   └── js/script.js     # Interacción del frontend
+├── app.py                # Aplicación Flask (backend)
+├── ffmpeg_util.py        # Descarga y gestión automática de FFmpeg
+├── build.bat             # Genera ejectables\Windows\TubeToMP3.exe (hay que ejecutarlo en Windows)
+├── build_appimage.sh     # Genera ejectables/Linux/TubeToMP3-x86_64.AppImage
+├── iniciar.bat           # Arranque con doble clic (Windows)
+├── iniciar.sh            # Arranque con doble clic (Linux/macOS)
+├── requirements.txt      # Dependencias de Python
 ├── templates/
-│   └── index.html       # Página principal
-├── downloads/           # Se crea automáticamente; aquí se guardan los audios
-└── ffmpeg/              # Se crea automáticamente (binario estático, ~90 MB)
+│   └── index.html        # Página principal
+├── static/
+│   ├── css/styles.css    # Estilos
+│   ├── js/script.js      # Interacción del frontend
+│   └── logo.svg          # Icono usada por los ejecutables
+├── ejecutables/          # Versiones portátiles (una carpeta por sistema)
+│   ├── Windows/          # TubeToMP3.exe (generado con build.bat)
+│   └── Linux/            # TubeToMP3-x86_64.AppImage (generado con build_appimage.sh)
+├── downloads/            # Se crea automáticamente; aquí se guardan los audios
+└── ffmpeg/               # Se crea automáticamente (binario estático, ~90 MB)
 ```
 
 ## Cómo funciona
@@ -102,7 +131,11 @@ TubeToMP3/
 ## Notas
 
 - La app escucha solo en `127.0.0.1` (no expone nada a tu red local) y usa el puerto 5000 (con reseva automática si estuviera ocupado).
-- Los audios descargados quedan en la carpeta `downloads/`; puedes borrarlos manualmente cuando quieras.
+- **Dónde se guarda cada cosa** (depende de cómo se ejecute):
+  - Modo fuente: en la carpeta del proyecto (`downloads/`, `ffmpeg/`, `downloader.log`).
+  - AppImage: en `~/.local/share/tubetomp3/` (el AppImage es solo lectura).
+  - `.exe` de Windows: en la misma carpeta del ejecutable.
+- **Limpieza automática:** los audios descargados se borran solos al superar **7 días** de antigüedad (se revisa cada 12 h). Se configura con la variable `TUBETOMP3_DIAS_DESCARGAS` (0 = conservar para siempre).
 - Registro de actividad en `downloader.log`.
 
 ## Solución de problemas

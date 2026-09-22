@@ -10,7 +10,9 @@ fi
 
 if [ ! -d venv ]; then
     echo "[1/3] Creando entorno virtual..."
-    python3 -m venv venv
+    # --system-site-packages permite heredar PyGObject (gi) del sistema para
+    # que la ventana nativa (pywebview) funcione en Linux.
+    python3 -m venv --system-site-packages venv
 fi
 
 source venv/bin/activate

@@ -15,6 +15,7 @@ import queue
 import socket
 import sys
 import threading
+import time
 import uuid
 import webbrowser
 from pathlib import Path
@@ -36,7 +37,12 @@ BASE_DIR = Path(__file__).resolve().parent
 FROZEN = getattr(sys, "frozen", False)
 if FROZEN:
     RES_BASE = Path(getattr(sys, "_MEIPASS"))
-    DATA_BASE = Path(sys.executable).resolve().parent
+    # AppImage: el AppDir montado es de SOLO LECTURA; los datos escribibles
+    # (descargas, ffmpeg, registro) van a la carpeta de datos del usuario.
+    if os.environ.get("APPDIR"):
+        DATA_BASE = Path.home() / ".local" / "share" / "tubetomp3"
+    else:
+        DATA_BASE = Path(sys.executable).resolve().parent
 else:
     RES_BASE = BASE_DIR
     DATA_BASE = BASE_DIR
@@ -68,6 +74,7 @@ JOBS_LOCK = threading.Lock()
 
 def configurar_logging() -> None:
     """Log a archivo y consola."""
+    DATA_BASE.mkdir(parents=True, exist_ok=True)
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s %(levelname)s %(name)s: %(message)s",
@@ -76,6 +83,40 @@ def configurar_logging() -> None:
             logging.StreamHandler(),
         ],
     )
+
+
+def limpiar_descargas(max_dias: int = 7) -> int:
+    """Borra los audios descargados con más de `max_dias` de antigüedad.
+
+    Devuelve cuántos archivos eliminó. `max_dias <= 0` desactiva la limpieza.
+    """
+    if max_dias <= 0 or not DOWNLOAD_DIR.is_dir():
+        return 0
+    corte = time.time() - max_dias * 86400
+    limpiados = 0
+    try:
+        for ruta in DOWNLOAD_DIR.rglob("*"):
+            if ruta.is_file() and ruta.stat().st_mtime < corte:
+                ruta.unlink(missing_ok=True)
+                limpiados += 1
+        # Recoloca las subcarpetas que quedaron vacías
+        for carpeta in sorted(DOWNLOAD_DIR.rglob("*"), reverse=True):
+            if carpeta.is_dir():
+                try:
+                    carpeta.rmdir()
+                except OSError:
+                    pass
+    except Exception:
+        log.exception("Error durante la limpieza de descargas.")
+    if limpiados:
+        log.info("Limpieza: %d descarga(s) con más de %d día(s) eliminadas.", limpiados, max_dias)
+    return limpiados
+
+
+def _limpieza_periodica(dias: int) -> None:
+    while True:
+        limpiar_descargas(dias)
+        threading.Event().wait(12 * 3600)
 
 
 def es_url_valida(url: str) -> bool:
@@ -266,9 +307,57 @@ def descargar(filename):
     return "Error: El archivo no existe.", 404
 
 
+def arrancar_servidor(puerto: int):
+    """Lanza Flask en un hilo y devuelve el servidor para poder apagarlo."""
+    from werkzeug.serving import make_server
+
+    httpd = make_server("127.0.0.1", puerto, app, threaded=True)
+    threading.Thread(target=httpd.serve_forever, daemon=True).start()
+    return httpd
+
+
+def abrir_interfaz(puerto: int, httpd) -> None:
+    """Abre la app en una ventana nativa (pywebview); si no es posible, navegador."""
+    url = f"http://127.0.0.1:{puerto}"
+
+    if os.environ.get("TUBETOMP3_NAVEGADOR") != "1":
+        try:
+            import webview  # type: ignore
+
+            webview.create_window(
+                "TubeToMP3",
+                url,
+                width=560,
+                height=780,
+                min_size=(420, 640),
+                resizable=True,
+            )
+            # Bloquea hasta que el usuario cierra la ventana
+            webview.start()
+            httpd.shutdown()
+            return
+        except Exception as exc:
+            log.warning("Ventana nativa no disponible (%s). Abriendo el navegador.", exc)
+
+    webbrowser.open(url)
+    # Mantiene vivo el servidor hasta Ctrl+C (como ocurría con app.run)
+    try:
+        threading.Event().wait()
+    except KeyboardInterrupt:
+        pass
+
+
 if __name__ == "__main__":
     configurar_logging()
+
+    # Limpieza automática de audios antiguos (por defecto 7 días; 0 = nunca)
+    try:
+        dias = int(os.environ.get("TUBETOMP3_DIAS_DESCARGAS", "7"))
+    except ValueError:
+        dias = 7
+    threading.Thread(target=_limpieza_periodica, args=(dias,), daemon=True).start()
+
     puerto = puerto_disponible()
-    threading.Timer(1.0, lambda: webbrowser.open(f"http://127.0.0.1:{puerto}")).start()
+    httpd = arrancar_servidor(puerto)
     log.info("TubeToMP3 disponible en http://127.0.0.1:%s", puerto)
-    app.run(debug=False, host="127.0.0.1", port=puerto, threaded=True)
+    abrir_interfaz(puerto, httpd)

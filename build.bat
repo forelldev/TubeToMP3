@@ -19,12 +19,16 @@ pip install pyinstaller || goto :error
 echo [3/3] Generando el ejecutable...
 pyinstaller --noconfirm --clean --onefile --windowed --name TubeToMP3 ^
     --collect-all yt_dlp ^
+    --collect-all pywebview ^
     --add-data "templates;templates" ^
     --add-data "static;static" ^
     app.py || goto :error
 
+if not exist ejecutables\Windows mkdir ejecutables\Windows
+copy /y dist\TubeToMP3.exe ejecutables\Windows\TubeToMP3.exe >nul || goto :error
+
 echo.
-echo  Listo: dist\TubeToMP3.exe
+echo  Listo: ejecutables\Windows\TubeToMP3.exe
 echo  El primer uso descargara FFmpeg automaticamente (una sola vez).
 pause
 exit /b 0

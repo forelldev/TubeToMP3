@@ -12,3 +12,11 @@ ffmpeg/
 
 # Entorno operativo
 .env
+
+# Compilación (PyInstaller) y ejecutables generados
+build/
+dist/
+*.AppImage
+
+# Binarios grandes generados por build.bat / build_appimage.sh
+ejecutables/**/TubeToMP3.exe
