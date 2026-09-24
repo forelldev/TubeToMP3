@@ -3,8 +3,8 @@
 El ejecutable de Windows **se compila en un equipo Windows** (con Python 3.10+ instalado):
 
 1. Abre una terminal (CMD) en la raíz del proyecto.
-2. Ejecuta `build.bat`.
-3. El resultado queda en `ejecutables\Windows\TubeToMP3.exe`.
+2. Ejecuta `build_exe.bat`.
+3. El resultado queda en `creacion_ejecutables\Windows\TubeToMP3.exe`.
 
 No se puede generar desde Linux/macOS: PyInstaller no compila "en cruz".
 

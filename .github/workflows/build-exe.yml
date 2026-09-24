@@ -25,21 +25,22 @@ jobs:
         run: |
           pyinstaller --noconfirm --clean --onefile --windowed --name TubeToMP3 `
             --collect-all yt_dlp `
+            --collect-all pywebview `
             --add-data "templates;templates" `
             --add-data "static;static" `
             app.py
-          New-Item -ItemType Directory -Force ejecutables\Windows | Out-Null
-          Copy-Item dist\TubeToMP3.exe ejecutables\Windows\TubeToMP3.exe
+          New-Item -ItemType Directory -Force creacion_ejecutables\Windows | Out-Null
+          Copy-Item dist\TubeToMP3.exe creacion_ejecutables\Windows\TubeToMP3.exe
 
       - name: Subir artefacto (pestaña Actions)
         uses: actions/upload-artifact@v4
         with:
           name: TubeToMP3-windows-exe
-          path: ejecutables/Windows/TubeToMP3.exe
+          path: creacion_ejecutables/Windows/TubeToMP3.exe
           if-no-files-found: error
 
       - name: Adjuntar a la release
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
-          files: ejecutables/Windows/TubeToMP3.exe
+          files: creacion_ejecutables/Windows/TubeToMP3.exe

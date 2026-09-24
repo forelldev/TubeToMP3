@@ -76,12 +76,12 @@ curl -Ls "$APPIMAGE_TOOL_URL" -o "$TOOL"
 chmod +x "$TOOL"
 APPIMAGE_EXTRACT_AND_RUN=1 "$TOOL" "$APPDIR_FOLDER"
 
-echo "[5/5] Colocando el ejecutable en ejecutables/Linux/"
-mkdir -p ejecutables/Linux
-mv -f TubeToMP3-x86_64.AppImage ejecutables/Linux/
+echo "[5/5] Colocando el ejecutable en creacion_ejecutables/Linux/"
+mkdir -p creacion_ejecutables/Linux
+mv -f TubeToMP3-x86_64.AppImage creacion_ejecutables/Linux/
 rm -rf "$APPDIR_FOLDER"
 
 echo ""
-echo "Listo: ejecutables/Linux/TubeToMP3-x86_64.AppImage"
-echo "Pruébalo con: ./ejecutables/Linux/TubeToMP3-x86_64.AppImage"
+echo "Listo: creacion_ejecutables/Linux/TubeToMP3-x86_64.AppImage"
+echo "Pruébalo con: ./creacion_ejecutables/Linux/TubeToMP3-x86_64.AppImage"
 echo "(los datos de descargas/ffmpeg se guardan en ~/.local/share/tubetomp3)"

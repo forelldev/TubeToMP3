@@ -18,5 +18,5 @@ build/
 dist/
 *.AppImage
 
-# Binarios grandes generados por build.bat / build_appimage.sh
-ejecutables/**/TubeToMP3.exe
+# Binarios grandes generados por build_exe.bat / build_appimage.sh
+creacion_ejecutables/**/*.exe

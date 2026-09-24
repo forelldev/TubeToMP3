@@ -24,11 +24,11 @@ pyinstaller --noconfirm --clean --onefile --windowed --name TubeToMP3 ^
     --add-data "static;static" ^
     app.py || goto :error
 
-if not exist ejecutables\Windows mkdir ejecutables\Windows
-copy /y dist\TubeToMP3.exe ejecutables\Windows\TubeToMP3.exe >nul || goto :error
+if not exist creacion_ejecutables\Windows mkdir creacion_ejecutables\Windows
+copy /y dist\TubeToMP3.exe creacion_ejecutables\Windows\TubeToMP3.exe >nul || goto :error
 
 echo.
-echo  Listo: ejecutables\Windows\TubeToMP3.exe
+echo  Listo: creacion_ejecutables\Windows\TubeToMP3.exe
 echo  El primer uso descargara FFmpeg automaticamente (una sola vez).
 pause
 exit /b 0

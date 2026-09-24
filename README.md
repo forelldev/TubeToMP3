@@ -12,26 +12,34 @@ Elige tu perfil a continuación:
 
 ## Para los que solo quieren descargar
 
-Dentro de la carpeta **`ejecutables/`** están las versiones listas para usar, una por sistema operativo:
+> **Los binarios ya NO están dentro del repositorio** (así el repo se mantiene ligero). Los ejecutables se generan en la carpeta local de trabajo `creacion_ejecutables/` y se reparten por separado mediante enlaces de descarga directa (GitHub Releases / Mega, próximamente).
+
+### Dónde se generan los builds
+
+`creacion_ejecutables/` es la **carpeta de trabajo de compilación** (está en `.gitignore`, no se sube a GitHub):
 
 ```
-ejecutables/
-├── Windows/        → TubeToMP3.exe   (próximamente, aún no generado)
-└── Linux/          → TubeToMP3-x86_64.AppImage   (LISTO, 80 MB)
+creacion_ejecutables/
+├── Windows/   → TubeToMP3.exe             (generado con build_exe.bat / GitHub Actions)
+└── Linux/     → TubeToMP3-x86_64.AppImage (generado con build_appimage.sh)
 ```
 
-**Linux (ya disponible):** la app abre en una **ventana propia** (sin navegador).
+### Linux (ya disponible)
+
+El AppImage ya está compilado y queda en `creacion_ejecutables/Linux/`. La app abre en una **ventana propia** (sin navegador):
 
 ```bash
-chmod +x ejecutables/Linux/TubeToMP3-x86_64.AppImage
-./ejecutables/Linux/TubeToMP3-x86_64.AppImage
+chmod +x creacion_ejecutables/Linux/TubeToMP3-x86_64.AppImage
+./creacion_ejecutables/Linux/TubeToMP3-x86_64.AppImage
 ```
 
 - Si falla la ventana, se abre el navegador automáticamente (Plan B).
 - En la primera conversión descarga FFmpeg solo (~40 MB) a `~/.local/share/tubetomp3/ffmpeg/`.
 - Requiere FUSE y, para la ventana nativa, WebKitGTK. En Debian/Ubuntu: `sudo apt install python3-gi gir1.2-webkit2-4.1 libwebkit2gtk-4.1-0`.
 
-**Windows (próximamente):** el `TubeToMP3.exe` **aún no ha sido compilado**. Se genera con `build.bat` en un equipo Windows (ver sección de desarrolladores). En cuanto exista, irá dentro de `ejecutables/Windows/`.
+### Windows (próximamente)
+
+El `TubeToMP3.exe` **aún no ha sido compilado** y, por tanto, no hay ningún enlace de descarga aún. Se genera con `build_exe.bat` en un equipo Windows o con el workflow de GitHub (ver sección de desarrolladores); el resultado queda dentro de `creacion_ejecutables/Windows/`.
 
 ---
 
@@ -88,17 +96,17 @@ Requisitos:
 Pasos:
 
 ```bat
-build.bat
+build_exe.bat
 ```
 
-Genera `ejecutables\Windows\TubeToMP3.exe` (un solo archivo, con yt-dlp y pywebview dentro, FFmpeg autodescargable).
+Genera `creacion_ejecutables\Windows\TubeToMP3.exe` (un solo archivo, con yt-dlp y pywebview dentro, FFmpeg autodescargable).
 
 **Alternativa sin Windows — GitHub Actions:** por defecto el repositorio incluye el workflow `.github/workflows/build-exe.yml`.
 
 1. Sube el proyecto a GitHub.
 2. Ve a **Actions → Build Windows .exe → Run workflow**.
 3. Descarga el artefacto `TubeToMP3-windows-exe` (contiene el `.exe`).
-4. Si en vez de "Run workflow" creas una *release* con etiqueta `v*`, el `.exe` se adjunta solo a la release (desde `ejecutables/Windows/`).
+4. Si en vez de "Run workflow" creas una *release* con etiqueta `v*`, el `.exe` se adjunta solo a la release (desde `creacion_ejecutables/Windows/`).
 
 ### Compilar el AppImage de Linux
 
@@ -112,7 +120,7 @@ Pasos:
 ./build_appimage.sh
 ```
 
-Genera `ejecutables/Linux/TubeToMP3-x86_64.AppImage` (~80 MB). El script instala PyInstaller y `appimagetool`, compila y coloca el resultado automáticamente en su sitio.
+Genera `creacion_ejecutables/Linux/TubeToMP3-x86_64.AppImage` (~80 MB). El script instala PyInstaller y `appimagetool`, compila y coloca el resultado automáticamente en su sitio.
 
 > **Compatibilidad:** el AppImage arrastra la `glibc` de la distro donde compiles. Para repartirlo a otros, compílalo en la distro más antigua que quieras soportar (Debian 11 / Ubuntu 20.04) o en un contenedor Docker de esa versión.
 
@@ -129,8 +137,8 @@ TubeToMP3/
 ├── app.py                # Aplicación Flask (backend) + ventana nativa
 ├── ffmpeg_util.py        # Descarga y gestión automática de FFmpeg
 ├── requirements.txt      # Dependencias: Flask, yt-dlp, pywebview
-├── build.bat             # Genera ejecutables\Windows\TubeToMP3.exe (en Windows)
-├── build_appimage.sh     # Genera ejecutables/Linux/TubeToMP3-x86_64.AppImage
+├── build_exe.bat            # Genera creacion_ejecutables\Windows\TubeToMP3.exe (en Windows)
+├── build_appimage.sh        # Genera creacion_ejecutables/Linux/TubeToMP3-x86_64.AppImage
 ├── iniciar.bat           # Lanzador de un clic (Windows)
 ├── iniciar.sh            # Lanzador de un clic (Linux/macOS)
 ├── templates/
@@ -139,7 +147,7 @@ TubeToMP3/
 │   ├── css/styles.css    # Estilos
 │   ├── js/script.js      # Interacción del frontend
 │   └── logo.svg          # Icono de los ejecutables
-├── ejecutables/          # Versiones portátiles (una por sistema)
+├── creacion_ejecutables/    # Carpeta de trabajo: aquí se generan los builds por SO (no se suben al repo)
 │   ├── Windows/          # TubeToMP3.exe (próximamente)
 │   └── Linux/            # TubeToMP3-x86_64.AppImage (listo)
 ├── downloads/            # Se crea solo; aquí se guardan los audios (modo fuente)
